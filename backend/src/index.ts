@@ -1,5 +1,6 @@
 import express from 'express'
 import dotenv from 'dotenv'
+import router from './routes'
 
 dotenv.config()
 
@@ -8,8 +9,6 @@ const app = express()
 
 app.use(express.json())
 
-app.get('/', (req, res) => {
-  return res.json({ msg: 'Hello World' })
-})
+app.use(router)
 
 app.listen(PORT, () => console.log(`> Server listen on port ${PORT}`))
