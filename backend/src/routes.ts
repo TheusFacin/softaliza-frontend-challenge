@@ -1,20 +1,21 @@
 import express from 'express'
+import EventController from './controllers/EventController'
 
 const router = express.Router()
 
 // index
-router.get('/events', (req, res) => res.json({ msg: 'List all events' }))
+router.get('/events', EventController.index)
 
 // create
-router.post('/events', (req, res) => res.json({ msg: 'Create an event' }))
+router.post('/events', EventController.create)
 
 // show
-router.get('/events/:id', (req, res) => res.json({ msg: 'Show an event' }))
+router.get('/events/:id', EventController.show)
 
 // update
-router.patch('/events/:id', (req, res) => res.json({ msg: 'Update an event' }))
+router.patch('/events/:id', EventController.update)
 
 // delete
-router.delete('/events/:id', (req, res) => res.json({ msg: 'Delete an event' }))
+router.delete('/events/:id', EventController.delete)
 
 export default router

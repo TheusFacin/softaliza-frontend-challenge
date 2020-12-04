@@ -1,4 +1,21 @@
-import mongoose from 'mongoose'
+import mongoose, { Document } from 'mongoose'
+
+enum EventType {
+  PRESENTIAL = 'PRESENTIAL',
+  ONLINE = 'ONLINE',
+  HYBRID = 'HYBRID',
+}
+
+export interface IEventSchema extends Document {
+  title: string
+  description: string
+  date: Date
+  email: string
+  phone: string
+  type: EventType
+  onlineAddress?: string
+  physicalAddress?: { state: string; city: string; address: string }
+}
 
 const EventSchema = new mongoose.Schema({
   title: {
@@ -49,4 +66,4 @@ const EventSchema = new mongoose.Schema({
   },
 })
 
-export default mongoose.model('Event', EventSchema)
+export default mongoose.model<IEventSchema>('Event', EventSchema)
