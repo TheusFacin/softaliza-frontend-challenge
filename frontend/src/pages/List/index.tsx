@@ -30,7 +30,7 @@ const List: React.FC = () => {
 
   if (!events) {
     return (
-      <div className="events-page">
+      <div className="page events-page">
         <h1>Eventos</h1>
 
         <p>Carregando...</p>
@@ -39,7 +39,7 @@ const List: React.FC = () => {
   }
 
   return (
-    <div className="events-page">
+    <div className="page events-page">
       <h1>Eventos</h1>
 
       <div className="events-list">
@@ -76,7 +76,9 @@ const List: React.FC = () => {
                 </div>
 
                 <Link to={`/event/${event._id}`} className="button">
-                  Saiba mais <ArrowRight />
+                  <button>
+                    Saiba mais <ArrowRight />
+                  </button>
                 </Link>
               </footer>
             </div>

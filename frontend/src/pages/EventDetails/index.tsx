@@ -27,7 +27,7 @@ const EventDetails: React.FC = () => {
 
   if (!event) {
     return (
-      <div className="event-details-page">
+      <div className="page event-details-page">
         <h1>Detalhes do Evento</h1>
 
         <p>Carregando...</p>
@@ -36,7 +36,7 @@ const EventDetails: React.FC = () => {
   }
 
   return (
-    <div className="event-details-page">
+    <div className="page event-details-page">
       <h1>Detalhes do Evento</h1>
 
       <div className="event-details">
