@@ -7,6 +7,8 @@ import dateFormater from '../../utils/dateFormater'
 
 import { IEvent, EventTypeEnum } from '../../types'
 
+import './styles.scss'
+
 const List: React.FC = () => {
   const [events, setEvents] = useState<IEvent[]>()
 
@@ -50,32 +52,39 @@ const List: React.FC = () => {
             <div className="event" key={event._id}>
               <h2>{event.title}</h2>
 
-              <p>{event.description}</p>
+              <div className="description">
+                <p>{event.description.split(/\n/)[0]}</p>
+                {event.description.split('\n').length > 1 && <p>...</p>}
+              </div>
+
+              <hr />
 
               <footer>
-                <div className="date">
-                  <Calendar />
-                  <small>{dateFormater(event.date)}</small>
+                <div className="details">
+                  <div className="date">
+                    <Calendar />
+                    <small>{dateFormater(event.date)}</small>
+                  </div>
+
+                  <div className="local">
+                    <MapPin />
+                    {event.type === EventTypeEnum.ONLINE ? (
+                      <small>Online</small>
+                    ) : event.type === EventTypeEnum.PRESENTIAL ? (
+                      <small>
+                        {event.physicalAddress?.city} -{' '}
+                        {event.physicalAddress?.state}
+                      </small>
+                    ) : (
+                      <small>
+                        Online | {event.physicalAddress?.city} -{' '}
+                        {event.physicalAddress?.state}
+                      </small>
+                    )}
+                  </div>
                 </div>
 
-                <div className="local">
-                  <MapPin />
-                  {event.type === EventTypeEnum.ONLINE ? (
-                    <small>Online</small>
-                  ) : event.type === EventTypeEnum.PRESENTIAL ? (
-                    <small>
-                      {event.physicalAddress?.city} -{' '}
-                      {event.physicalAddress?.state}
-                    </small>
-                  ) : (
-                    <small>
-                      Online | {event.physicalAddress?.city} -{' '}
-                      {event.physicalAddress?.state}
-                    </small>
-                  )}
-                </div>
-
-                <Link to={`/event/${event._id}`} className="button">
+                <Link to={`/event/${event._id}`}>
                   <button>
                     Saiba mais <ArrowRight />
                   </button>
