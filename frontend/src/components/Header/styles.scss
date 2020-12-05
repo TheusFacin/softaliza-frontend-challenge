@@ -1,0 +1,54 @@
+@import '../../styles/variables.scss';
+
+nav.header {
+  width: 80%;
+  max-width: 800px;
+  margin: 0 auto 40px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+
+  h1 {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .link a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 15px;
+    font-family: 'Raleway', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-weight: bold;
+
+    svg {
+      stroke: $text-color;
+      height: 20px;
+    }
+  }
+
+  .right svg {
+    margin-left: 4px;
+  }
+
+  .left svg {
+    margin-right: 4px;
+  }
+
+  @media screen and (max-width: 720px) {
+    .link a {
+      span {
+        display: none;
+      }
+
+      svg {
+        height: 40px;
+      }
+    }
+  }
+}

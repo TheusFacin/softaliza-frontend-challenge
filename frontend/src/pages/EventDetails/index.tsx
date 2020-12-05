@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router'
-import { Calendar, MapPin, Globe, Phone, Mail } from 'react-feather'
+import { Calendar, MapPin, Globe, Phone, Mail, ArrowLeft } from 'react-feather'
 
 import api from '../../services/api'
 import { EventTypeEnum, IEvent } from '../../types'
 import dateFormater from '../../utils/dateFormater'
 
 import './styles.scss'
+import Header from '../../components/Header'
 
 const EventDetails: React.FC = () => {
   const { id } = useParams() as { id: string }
@@ -30,7 +31,10 @@ const EventDetails: React.FC = () => {
   if (!event) {
     return (
       <div className="page event-details-page">
-        <h1>Detalhes do Evento</h1>
+        <Header
+          title="Detalhes do Evento"
+          leftLink={{ to: '/', label: 'Voltar', icon: <ArrowLeft /> }}
+        />
 
         <p>Carregando...</p>
       </div>
@@ -39,7 +43,10 @@ const EventDetails: React.FC = () => {
 
   return (
     <div className="page event-details-page">
-      <h1>Detalhes do Evento</h1>
+      <Header
+        title="Detalhes do Evento"
+        leftLink={{ to: '/', label: 'Voltar', icon: <ArrowLeft /> }}
+      />
 
       <div className="event-details">
         <h2>{event.title}</h2>

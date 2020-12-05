@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight, MapPin, Calendar } from 'react-feather'
+import { ArrowRight, MapPin, Calendar, Plus } from 'react-feather'
 
 import api from '../../services/api'
 import dateFormater from '../../utils/dateFormater'
@@ -8,6 +8,7 @@ import dateFormater from '../../utils/dateFormater'
 import { IEvent, EventTypeEnum } from '../../types'
 
 import './styles.scss'
+import Header from '../../components/Header'
 
 const List: React.FC = () => {
   const [events, setEvents] = useState<IEvent[]>()
@@ -33,7 +34,14 @@ const List: React.FC = () => {
   if (!events) {
     return (
       <div className="page events-page">
-        <h1>Eventos</h1>
+        <Header
+          title="Eventos Disponíveis"
+          rightLink={{
+            to: '/create',
+            label: 'Criar Evento',
+            icon: <Plus />,
+          }}
+        />
 
         <div className="events-list">
           <p>Carregando...</p>
@@ -44,7 +52,10 @@ const List: React.FC = () => {
 
   return (
     <div className="page events-page">
-      <h1>Eventos</h1>
+      <Header
+        title="Eventos Disponíveis"
+        rightLink={{ to: '/create', label: 'Criar Evento', icon: <Plus /> }}
+      />
 
       <div className="events-list">
         {events.length === 0 ? (
