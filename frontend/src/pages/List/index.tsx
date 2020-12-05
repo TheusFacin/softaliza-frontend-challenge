@@ -35,7 +35,9 @@ const List: React.FC = () => {
       <div className="page events-page">
         <h1>Eventos</h1>
 
-        <p>Carregando...</p>
+        <div className="events-list">
+          <p>Carregando...</p>
+        </div>
       </div>
     )
   }

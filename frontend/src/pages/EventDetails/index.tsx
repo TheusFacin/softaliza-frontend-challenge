@@ -6,6 +6,8 @@ import api from '../../services/api'
 import { EventTypeEnum, IEvent } from '../../types'
 import dateFormater from '../../utils/dateFormater'
 
+import './styles.scss'
+
 const EventDetails: React.FC = () => {
   const { id } = useParams() as { id: string }
 
@@ -60,15 +62,17 @@ const EventDetails: React.FC = () => {
           ))}
         </div>
 
+        <hr />
+
         <address>
-          <div className="email">
+          <div className="contact email">
             <Mail />
             <small>
               <a href={`mailto:${event.email}`}>{event.email}</a>
             </small>
           </div>
 
-          <div className="phone">
+          <div className="contact phone">
             <Phone />
             <small>
               <a href={`tel:${event.phone}`}>{event.phone}</a>
@@ -77,7 +81,7 @@ const EventDetails: React.FC = () => {
 
           {(event.type === EventTypeEnum.PRESENTIAL ||
             event.type === EventTypeEnum.HYBRID) && (
-            <div className="local">
+            <div className="contact local">
               <MapPin />
               <small>
                 {event.physicalAddress?.address} - {event.physicalAddress?.city}{' '}
@@ -88,7 +92,7 @@ const EventDetails: React.FC = () => {
 
           {(event.type === EventTypeEnum.ONLINE ||
             event.type === EventTypeEnum.HYBRID) && (
-            <div className="link">
+            <div className="contact link">
               <Globe />
               <small>
                 <a href={event.onlineAddress || ''}>{event.onlineAddress}</a>

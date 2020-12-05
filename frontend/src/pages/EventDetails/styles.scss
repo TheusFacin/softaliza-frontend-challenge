@@ -1,0 +1,59 @@
+@import '../../styles/variables.scss';
+
+.event-details {
+  width: 88%;
+  max-width: 800px;
+  margin: 40px auto 0;
+  padding: 20px 80px;
+
+  background-color: $container-back-color;
+  border-radius: 20px;
+
+  .date {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    svg {
+      height: 20px;
+      margin-right: 12px;
+    }
+  }
+
+  .description {
+    p:not(:first-child) {
+      margin-top: 8px;
+    }
+  }
+
+  address {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    font-style: normal;
+
+    .contact {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 8px;
+
+      &:not(:last-child) {
+        margin-right: 16px;
+      }
+
+      svg {
+        height: 18px;
+        margin-right: 8px;
+      }
+    }
+  }
+
+  @media screen and (max-width: 720px) {
+    & {
+      padding: 20px;
+    }
+  }
+}
