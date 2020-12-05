@@ -1,13 +1,19 @@
-import React, { HTMLAttributes } from 'react'
+import React, { InputHTMLAttributes } from 'react'
 import InputMask from 'react-input-mask'
 
 import './styles.scss'
 
-interface InputProps extends HTMLAttributes<HTMLInputElement> {
+interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string
   span?: string
   placeholder: string
   mask: string
+}
+
+interface TextareaProps extends InputHTMLAttributes<HTMLTextAreaElement> {
+  label: string
+  span?: string
+  placeholder: string
 }
 
 const Input: React.FC<InputProps> = ({
@@ -28,4 +34,22 @@ const Input: React.FC<InputProps> = ({
   )
 }
 
+const TextArea: React.FC<TextareaProps> = ({
+  label,
+  span,
+  placeholder,
+  ...props
+}) => {
+  return (
+    <div className="input-container">
+      <label>
+        {label}
+        {span && <span>{span}</span>}
+      </label>
+      <textarea placeholder={placeholder} {...props}></textarea>
+    </div>
+  )
+}
+
 export default Input
+export { TextArea }

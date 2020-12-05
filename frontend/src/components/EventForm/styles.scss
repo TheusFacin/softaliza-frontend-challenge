@@ -4,14 +4,77 @@
   width: 88%;
   max-width: 800px;
   margin: 40px auto 0;
-  padding: 20px 80px;
+  padding: 40px 80px;
 
   background-color: $container-back-color;
   border-radius: 20px;
 
+  .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 20px;
+
+    &.three {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+  }
+
+  .event-type {
+    margin-bottom: 8px;
+
+    label {
+      font-size: 13px;
+      font-weight: bold;
+      margin-bottom: 4px;
+
+      span {
+        font-size: 12px;
+        margin-left: 8px;
+      }
+    }
+
+    .option {
+      margin-top: 8px;
+      margin-bottom: 4px;
+
+      background-color: $input-back-color;
+      border-radius: 10px;
+      font-size: 14px;
+      color: $text-color;
+
+      &.active {
+        background-color: $blue;
+        color: $title-color;
+
+        &:focus {
+          outline: none;
+          border: 2px solid $title-color;
+        }
+      }
+
+      &:focus {
+        outline: none;
+        border: 2px solid $blue;
+      }
+    }
+  }
+
+  button {
+    margin-top: 24px;
+  }
+
   @media screen and (max-width: 720px) {
     & {
       padding: 20px;
+    }
+
+    .row {
+      grid-template-columns: 1fr;
+      column-gap: 10px;
+
+      &.three {
+        grid-template-columns: 1fr;
+      }
     }
   }
 }

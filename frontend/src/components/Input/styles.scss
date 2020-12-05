@@ -4,21 +4,61 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  margin-bottom: 12px;
 
   label {
     font-size: 13px;
     font-weight: bold;
     margin-bottom: 4px;
+
+    span {
+      font-size: 12px;
+      margin-left: 8px;
+    }
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 80px;
+    padding: 12px 12px;
+
+    background-color: $input-back-color;
+    border: 2px solid $input-back-color;
+    border-radius: 10px;
+
+    font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 14px;
+    color: $text-color;
+
+    outline: none;
+    resize: vertical;
+
+    &:focus {
+      border: 2px solid $blue;
+    }
   }
 
   input {
     width: 100%;
     height: 40px;
     padding: 0 12px;
+
     background-color: $input-back-color;
     border: 2px solid $input-back-color;
     border-radius: 10px;
-    color: $text-color;
+
     font-size: 14px;
+    color: $text-color;
+
+    outline: none;
+
+    &:invalid {
+      border: 2px solid $red;
+      box-shadow: none;
+    }
+
+    &:focus {
+      border: 2px solid $blue;
+    }
   }
 }
