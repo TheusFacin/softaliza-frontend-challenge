@@ -1,0 +1,17 @@
+@import '../../styles/variables.scss';
+
+.form-container {
+  width: 88%;
+  max-width: 800px;
+  margin: 40px auto 0;
+  padding: 20px 80px;
+
+  background-color: $container-back-color;
+  border-radius: 20px;
+
+  @media screen and (max-width: 720px) {
+    & {
+      padding: 20px;
+    }
+  }
+}
