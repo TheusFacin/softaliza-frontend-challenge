@@ -36,7 +36,9 @@ const EventDetails: React.FC = () => {
           leftLink={{ to: '/', label: 'Voltar', icon: <ArrowLeft /> }}
         />
 
-        <p>Carregando...</p>
+        <div className="event-details">
+          <p>Carregando...</p>
+        </div>
       </div>
     )
   }
