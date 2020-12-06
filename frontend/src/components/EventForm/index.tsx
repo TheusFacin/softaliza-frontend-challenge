@@ -1,11 +1,17 @@
 import React, { useRef, useState } from 'react'
-import { EventTypeEnum } from '../../types'
+import { useHistory } from 'react-router'
+
+import { EventTypeEnum, ICreateEvent } from '../../types'
+import parseDate from '../../utils/parseDate'
+import api from '../../services/api'
 
 import Input, { TextArea } from '../Input'
 
 import './styles.scss'
 
 const EventForm: React.FC = () => {
+  const history = useHistory()
+
   const [eventType, setEventType] = useState<EventTypeEnum>(
     EventTypeEnum.ONLINE
   )
@@ -74,10 +80,63 @@ const EventForm: React.FC = () => {
     return hasErrors
   }
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleFormatData = (): ICreateEvent => {
+    let address = addressRef.current?.value.split(' - ') as string[]
+
+    return {
+      title: titleRef.current?.value as string,
+      description: descriptionRef.current?.value as string,
+      date: parseDate(
+        dateRef.current?.value as string,
+        hourRef.current?.value as string
+      ),
+      email: emailRef.current?.value as string,
+      phone: phoneRef.current?.value as string,
+      type: eventType,
+      onlineAddress: urlRef.current?.value as string,
+      physicalAddress: {
+        address:
+          eventType === EventTypeEnum.HYBRID ||
+          eventType === EventTypeEnum.PRESENTIAL
+            ? (addressRef.current?.value.split(' - ')[0] as string)
+            : '',
+        city:
+          eventType === EventTypeEnum.HYBRID ||
+          eventType === EventTypeEnum.PRESENTIAL
+            ? (address[address.length - 1] as string)
+            : '',
+        state:
+          eventType === EventTypeEnum.HYBRID ||
+          eventType === EventTypeEnum.PRESENTIAL
+            ? (address[address.length - 2] as string)
+            : '',
+      },
+    }
+  }
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    if (!handleVerifyInputs()) return
+    if (handleVerifyInputs()) return
+
+    const data = handleFormatData()
+
+    try {
+      const response = await api.post('/events', {
+        ...data,
+        date: data.date.toJSON(),
+      })
+
+      const { _id } = response.data as { _id: string }
+
+      alert(
+        'Evento criado com sucesso\nVocê será redirecionado para a página do evento'
+      )
+
+      history.push(`/event/${_id}`)
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   return (
@@ -117,7 +176,7 @@ const EventForm: React.FC = () => {
               inputMode="numeric"
               onKeyUp={e =>
                 !e.currentTarget.value ||
-                !/[01]\d:[0-5]\d/.test(e.currentTarget.value)
+                !/[012]\d:[0-5]\d/.test(e.currentTarget.value)
                   ? e.currentTarget.setCustomValidity(
                       'Insira um horário válido'
                     )

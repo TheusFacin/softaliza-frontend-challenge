@@ -4,8 +4,11 @@ export enum EventTypeEnum {
   HYBRID = 'HYBRID',
 }
 
-export interface IEvent {
+export interface IEvent extends ICreateEvent {
   _id: string
+}
+
+export interface ICreateEvent {
   title: string
   description: string
   date: Date
