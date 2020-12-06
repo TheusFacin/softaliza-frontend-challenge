@@ -36,6 +36,10 @@
     &:focus {
       border: 2px solid $blue;
     }
+    &:invalid {
+      border: 2px solid $red;
+      box-shadow: none;
+    }
   }
 
   input {

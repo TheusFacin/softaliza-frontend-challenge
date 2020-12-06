@@ -1,4 +1,4 @@
-import React, { InputHTMLAttributes } from 'react'
+import React, { forwardRef, InputHTMLAttributes } from 'react'
 import InputMask from 'react-input-mask'
 
 import './styles.scss'
@@ -7,7 +7,7 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string
   span?: string
   placeholder: string
-  mask: string
+  mask: string | (string | RegExp)[]
 }
 
 interface TextareaProps extends InputHTMLAttributes<HTMLTextAreaElement> {
@@ -16,40 +16,35 @@ interface TextareaProps extends InputHTMLAttributes<HTMLTextAreaElement> {
   placeholder: string
 }
 
-const Input: React.FC<InputProps> = ({
-  label,
-  span,
-  placeholder,
-  mask,
-  ...props
-}) => {
-  return (
-    <div className="input-container">
-      <label>
-        {label}
-        {span && <span>{span}</span>}
-      </label>
-      <InputMask mask={mask} placeholder={placeholder} {...props} />
-    </div>
-  )
-}
+const Input = forwardRef<HTMLInputElement, InputProps>(
+  ({ label, span, placeholder, mask, ...props }, ref) => {
+    return (
+      <div className="input-container">
+        <label>
+          {label}
+          {span && <span>{span}</span>}
+        </label>
+        <InputMask mask={mask}>
+          {() => <input placeholder={placeholder} ref={ref} {...props} />}
+        </InputMask>
+      </div>
+    )
+  }
+)
 
-const TextArea: React.FC<TextareaProps> = ({
-  label,
-  span,
-  placeholder,
-  ...props
-}) => {
-  return (
-    <div className="input-container">
-      <label>
-        {label}
-        {span && <span>{span}</span>}
-      </label>
-      <textarea placeholder={placeholder} {...props}></textarea>
-    </div>
-  )
-}
+const TextArea = forwardRef<HTMLTextAreaElement, TextareaProps>(
+  ({ label, span, placeholder, ...props }, ref) => {
+    return (
+      <div className="input-container">
+        <label>
+          {label}
+          {span && <span>{span}</span>}
+        </label>
+        <textarea placeholder={placeholder} ref={ref} {...props}></textarea>
+      </div>
+    )
+  }
+)
 
 export default Input
 export { TextArea }
