@@ -1,23 +1,24 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { useHistory } from 'react-router'
-
-import { EventTypeEnum, ICreateEvent, IEvent } from '../../types'
-import parseDate from '../../utils/parseDate'
-import api from '../../services/api'
 
 import Input, { TextArea } from '../Input'
 
-import './styles.scss'
+import { EventTypeEnum, ICreateEvent, IEvent } from '../../types'
+import parseDate from '../../utils/parseDate'
 import { getDate, getHour } from '../../utils/dateFormater'
+
+import './styles.scss'
 
 interface EventFormProps {
   event?: IEvent
   buttonText: string
+  submitFunction: (data: ICreateEvent) => void
 }
 
-const EventForm: React.FC<EventFormProps> = ({ event, buttonText }) => {
-  const history = useHistory()
-
+const EventForm: React.FC<EventFormProps> = ({
+  event,
+  buttonText,
+  submitFunction,
+}) => {
   const [eventType, setEventType] = useState<EventTypeEnum>(
     EventTypeEnum.ONLINE
   )
@@ -161,22 +162,7 @@ const EventForm: React.FC<EventFormProps> = ({ event, buttonText }) => {
 
     const data = handleFormatData()
 
-    try {
-      const response = await api.post('/events', {
-        ...data,
-        date: data.date.toJSON(),
-      })
-
-      const { _id } = response.data as { _id: string }
-
-      alert(
-        'Evento criado com sucesso\nVocê será redirecionado para a página do evento'
-      )
-
-      history.push(`/event/${_id}`)
-    } catch (e) {
-      console.log(e)
-    }
+    submitFunction(data)
   }
 
   return (

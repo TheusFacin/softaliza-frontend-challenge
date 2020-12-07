@@ -1,15 +1,18 @@
 import React, { useEffect, useState } from 'react'
 import { ArrowLeft } from 'react-feather'
+import { useHistory } from 'react-router'
 import { useParams } from 'react-router-dom'
 
 import Header from '../../components/Header'
 import EventForm from '../../components/EventForm'
-import { IEvent } from '../../types'
+import { ICreateEvent, IEvent } from '../../types'
 import api from '../../services/api'
 
 const EditEvent: React.FC = () => {
   const { id } = useParams() as { id: string }
   const [event, setEvent] = useState<IEvent>()
+
+  const history = useHistory()
 
   useEffect(() => {
     if (id) {
@@ -27,6 +30,23 @@ const EditEvent: React.FC = () => {
     }
   }, [id])
 
+  const handleSubmit = async (data: ICreateEvent) => {
+    try {
+      await api.patch(`/events/${id}`, {
+        ...data,
+        date: data.date.toJSON(),
+      })
+
+      alert(
+        'Evento alterado com sucesso\nVocê será redirecionado para a página do evento'
+      )
+
+      history.push(`/event/${id}`)
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
   return (
     <div className="page create-event">
       <Header
@@ -34,7 +54,13 @@ const EditEvent: React.FC = () => {
         leftLink={{ to: `/event/${id}`, icon: <ArrowLeft />, label: 'Voltar' }}
       />
 
-      {event && <EventForm event={event} buttonText="Salvar Evento" />}
+      {event && (
+        <EventForm
+          event={event}
+          buttonText="Salvar Evento"
+          submitFunction={handleSubmit}
+        />
+      )}
     </div>
   )
 }
