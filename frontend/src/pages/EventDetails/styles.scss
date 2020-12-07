@@ -5,9 +5,40 @@
   max-width: 800px;
   margin: 40px auto 0;
   padding: 20px 80px;
+  position: relative;
 
   background-color: $container-back-color;
   border-radius: 20px;
+
+  h2 {
+    width: 60%;
+    margin: 0 auto 20px;
+  }
+
+  button {
+    width: 40px;
+    height: 40px;
+
+    position: absolute;
+    top: 20px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &.remove {
+      background-color: $red;
+      right: 80px;
+    }
+
+    &.edit {
+      right: 130px;
+    }
+
+    svg {
+      margin: 0;
+    }
+  }
 
   .date {
     margin-bottom: 20px;
@@ -54,6 +85,14 @@
   @media screen and (max-width: 720px) {
     & {
       padding: 20px;
+
+      button.remove {
+        right: 20px;
+      }
+
+      button.edit {
+        left: 20px;
+      }
     }
   }
 }

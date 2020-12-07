@@ -1,6 +1,15 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router'
-import { Calendar, MapPin, Globe, Phone, Mail, ArrowLeft } from 'react-feather'
+import {
+  Calendar,
+  MapPin,
+  Globe,
+  Phone,
+  Mail,
+  ArrowLeft,
+  Edit2,
+  Trash2,
+} from 'react-feather'
 
 import api from '../../services/api'
 import { EventTypeEnum, IEvent } from '../../types'
@@ -8,6 +17,7 @@ import dateFormater from '../../utils/dateFormater'
 
 import './styles.scss'
 import Header from '../../components/Header'
+import { Link } from 'react-router-dom'
 
 const EventDetails: React.FC = () => {
   const { id } = useParams() as { id: string }
@@ -52,6 +62,18 @@ const EventDetails: React.FC = () => {
 
       <div className="event-details">
         <h2>{event.title}</h2>
+
+        <div className="options">
+          <Link to={`/event/${id}/edit`}>
+            <button className="edit">
+              <Edit2 />
+            </button>
+          </Link>
+
+          <button className="remove">
+            <Trash2 />
+          </button>
+        </div>
 
         <div className="date">
           <Calendar />
