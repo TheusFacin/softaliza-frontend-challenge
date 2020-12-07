@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useParams, useHistory } from 'react-router'
+import { Link } from 'react-router-dom'
 import {
   Calendar,
   MapPin,
@@ -10,20 +11,33 @@ import {
   Edit2,
   Trash2,
 } from 'react-feather'
+import Leaflet from 'leaflet'
+import { MapContainer, TileLayer, Marker } from 'react-leaflet'
+import { OpenStreetMapProvider } from 'leaflet-geosearch'
 
-import api from '../../services/api'
+import Header from '../../components/Header'
+
 import { EventTypeEnum, IEvent } from '../../types'
+import api from '../../services/api'
 import dateFormater from '../../utils/dateFormater'
+import mapMarkerImg from '../../assets/map-marker.svg'
 
 import './styles.scss'
-import Header from '../../components/Header'
-import { Link } from 'react-router-dom'
+
+const mapIcon = Leaflet.icon({
+  iconUrl: mapMarkerImg,
+  iconSize: [38, 50],
+  iconAnchor: [19, 50],
+})
+
+const provider = new OpenStreetMapProvider()
 
 const EventDetails: React.FC = () => {
   const { id } = useParams() as { id: string }
   const history = useHistory()
 
   const [event, setEvent] = useState<IEvent>()
+  const [addr, setAddr] = useState<any>()
 
   useEffect(() => {
     ;(async () => {
@@ -36,6 +50,19 @@ const EventDetails: React.FC = () => {
       }
 
       setEvent(event)
+
+      if (
+        event.type === EventTypeEnum.PRESENTIAL ||
+        event.type === EventTypeEnum.HYBRID
+      ) {
+        const results = await provider.search({
+          query: `${event.physicalAddress?.address} - ${event.physicalAddress?.city} - ${event.physicalAddress?.state}`,
+        })
+
+        setAddr(results[0])
+      } else {
+        setAddr(1)
+      }
     })()
   }, [id])
 
@@ -57,7 +84,7 @@ const EventDetails: React.FC = () => {
     }
   }
 
-  if (!event) {
+  if (!event || !addr) {
     return (
       <div className="page event-details-page">
         <Header
@@ -134,8 +161,14 @@ const EventDetails: React.FC = () => {
             <div className="contact local">
               <MapPin />
               <small>
-                {event.physicalAddress?.address} - {event.physicalAddress?.city}{' '}
-                - {event.physicalAddress?.state}
+                <a
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href={`https://www.google.com/maps/dir/?api=1&destination=${addr.bounds[0][0]},${addr.bounds[0][1]}`}
+                >
+                  {event.physicalAddress?.address} -{' '}
+                  {event.physicalAddress?.city} - {event.physicalAddress?.state}
+                </a>
               </small>
             </div>
           )}
@@ -150,6 +183,27 @@ const EventDetails: React.FC = () => {
             </div>
           )}
         </address>
+
+        {(event.type === EventTypeEnum.PRESENTIAL ||
+          event.type === EventTypeEnum.HYBRID) && (
+          <div id="map">
+            <MapContainer
+              center={addr.bounds[0]}
+              zoom={16}
+              style={{ width: '100%', height: '100%' }}
+              dragging={false}
+              touchZoom={false}
+              zoomControl={false}
+              scrollWheelZoom={false}
+              doubleClickZoom={false}
+            >
+              <TileLayer
+                url={`https://api.mapbox.com/styles/v1/mapbox/light-v10/tiles/256/{z}/{x}/{y}@2x?access_token=${process.env.REACT_APP_MAPBOX_TOKEN}`}
+              />
+              <Marker icon={mapIcon} position={addr.bounds[0]} />
+            </MapContainer>
+          </div>
+        )}
       </div>
     </div>
   )
