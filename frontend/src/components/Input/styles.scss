@@ -6,6 +6,10 @@
   align-items: flex-start;
   margin-bottom: 12px;
 
+  &.hidden {
+    display: none;
+  }
+
   label {
     font-size: 13px;
     font-weight: bold;

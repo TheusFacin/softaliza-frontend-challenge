@@ -11,7 +11,7 @@ const CreateEvent: React.FC = () => {
         leftLink={{ to: '/', icon: <ArrowLeft />, label: 'Voltar' }}
       />
 
-      <EventForm />
+      <EventForm buttonText="Criar Evento" />
     </div>
   )
 }

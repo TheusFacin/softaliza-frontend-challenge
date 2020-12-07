@@ -1,38 +1,35 @@
 import React, { forwardRef, InputHTMLAttributes } from 'react'
-import InputMask from 'react-input-mask'
 
 import './styles.scss'
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string
   span?: string
+  shouldHide?: boolean
   placeholder: string
-  mask: string | (string | RegExp)[]
 }
 
-interface TextareaProps extends InputHTMLAttributes<HTMLTextAreaElement> {
+interface TextareProps extends InputHTMLAttributes<HTMLTextAreaElement> {
   label: string
   span?: string
   placeholder: string
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ label, span, placeholder, mask, ...props }, ref) => {
+  ({ label, span, shouldHide, placeholder, ...props }, ref) => {
     return (
-      <div className="input-container">
+      <div className={`input-container ${shouldHide ? 'hidden' : ''}`}>
         <label>
           {label}
           {span && <span>{span}</span>}
         </label>
-        <InputMask mask={mask}>
-          {() => <input placeholder={placeholder} ref={ref} {...props} />}
-        </InputMask>
+        <input placeholder={placeholder} ref={ref} {...props} />
       </div>
     )
   }
 )
 
-const TextArea = forwardRef<HTMLTextAreaElement, TextareaProps>(
+const TextArea = forwardRef<HTMLTextAreaElement, TextareProps>(
   ({ label, span, placeholder, ...props }, ref) => {
     return (
       <div className="input-container">

@@ -1,15 +1,21 @@
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useHistory } from 'react-router'
 
-import { EventTypeEnum, ICreateEvent } from '../../types'
+import { EventTypeEnum, ICreateEvent, IEvent } from '../../types'
 import parseDate from '../../utils/parseDate'
 import api from '../../services/api'
 
 import Input, { TextArea } from '../Input'
 
 import './styles.scss'
+import { getDate, getHour } from '../../utils/dateFormater'
 
-const EventForm: React.FC = () => {
+interface EventFormProps {
+  event?: IEvent
+  buttonText: string
+}
+
+const EventForm: React.FC<EventFormProps> = ({ event, buttonText }) => {
   const history = useHistory()
 
   const [eventType, setEventType] = useState<EventTypeEnum>(
@@ -17,63 +23,97 @@ const EventForm: React.FC = () => {
   )
 
   const formRef = useRef<HTMLFormElement>(null)
-  const titleRef = useRef<HTMLInputElement>(null)
-  const dateRef = useRef<HTMLInputElement>(null)
-  const hourRef = useRef<HTMLInputElement>(null)
-  const emailRef = useRef<HTMLInputElement>(null)
-  const phoneRef = useRef<HTMLInputElement>(null)
-  const descriptionRef = useRef<HTMLTextAreaElement>(null)
-  const urlRef = useRef<HTMLInputElement>(null)
-  const addressRef = useRef<HTMLInputElement>(null)
+  const titleRef = useRef<HTMLInputElement>(document.createElement('input'))
+  const dateRef = useRef<HTMLInputElement>(document.createElement('input'))
+  const hourRef = useRef<HTMLInputElement>(document.createElement('input'))
+  const emailRef = useRef<HTMLInputElement>(document.createElement('input'))
+  const phoneRef = useRef<HTMLInputElement>(document.createElement('input'))
+  const descriptionRef = useRef<HTMLTextAreaElement>(
+    document.createElement('textarea')
+  )
+  const urlRef = useRef<HTMLInputElement>(document.createElement('input'))
+  const addressRef = useRef<HTMLInputElement>(document.createElement('input'))
+
+  useEffect(() => {
+    if (event) {
+      titleRef.current.value = event.title
+      dateRef.current.value = getDate(event.date)
+      hourRef.current.value = getHour(event.date)
+      emailRef.current.value = event.email
+      phoneRef.current.value = event.phone
+      descriptionRef.current.value = event.description
+      setEventType(event.type)
+
+      if (
+        event.type === EventTypeEnum.HYBRID ||
+        event.type === EventTypeEnum.ONLINE
+      ) {
+        urlRef.current.value = event.onlineAddress as string
+      }
+
+      if (
+        event.type === EventTypeEnum.HYBRID ||
+        event.type === EventTypeEnum.PRESENTIAL
+      ) {
+        const addr = event.physicalAddress as {
+          address: string
+          city: string
+          state: string
+        }
+
+        addressRef.current.value = `${addr.address} - ${addr.city} - ${addr.state}`
+      }
+    }
+  }, [event])
 
   const handleVerifyInputs = (): boolean => {
     let hasErrors = false
 
-    if (!titleRef.current?.value) {
-      titleRef.current?.setCustomValidity('Insira um título')
+    if (!titleRef.current.value) {
+      titleRef.current.setCustomValidity('Insira um título')
       hasErrors = true
     }
 
-    if (!dateRef.current?.value) {
-      dateRef.current?.setCustomValidity('Insira uma data')
+    if (!dateRef.current.value) {
+      dateRef.current.setCustomValidity('Insira uma data')
       hasErrors = true
     }
 
-    if (!hourRef.current?.value) {
-      hourRef.current?.setCustomValidity('Insira um horário')
+    if (!hourRef.current.value) {
+      hourRef.current.setCustomValidity('Insira um horário')
       hasErrors = true
     }
 
-    if (!emailRef.current?.value) {
-      emailRef.current?.setCustomValidity('Insira um email')
+    if (!emailRef.current.value) {
+      emailRef.current.setCustomValidity('Insira um email')
       hasErrors = true
     }
 
-    if (!phoneRef.current?.value) {
-      phoneRef.current?.setCustomValidity('Insira um telefone')
+    if (!phoneRef.current.value) {
+      phoneRef.current.setCustomValidity('Insira um telefone')
       hasErrors = true
     }
 
-    if (!descriptionRef.current?.value) {
-      descriptionRef.current?.setCustomValidity('Insira uma descrição')
+    if (!descriptionRef.current.value) {
+      descriptionRef.current.setCustomValidity('Insira uma descrição')
       hasErrors = true
     }
 
     if (
       (eventType === EventTypeEnum.HYBRID ||
         eventType === EventTypeEnum.ONLINE) &&
-      !urlRef.current?.value
+      !urlRef.current.value
     ) {
-      urlRef.current?.setCustomValidity('Insira uma URL')
+      urlRef.current.setCustomValidity('Insira uma URL')
       hasErrors = true
     }
 
     if (
       (eventType === EventTypeEnum.HYBRID ||
         eventType === EventTypeEnum.PRESENTIAL) &&
-      !addressRef.current?.value
+      !addressRef.current.value
     ) {
-      addressRef.current?.setCustomValidity('Insira uma URL')
+      addressRef.current.setCustomValidity('Insira uma URL')
       hasErrors = true
     }
 
@@ -84,31 +124,31 @@ const EventForm: React.FC = () => {
     let address = addressRef.current?.value.split(' - ') as string[]
 
     return {
-      title: titleRef.current?.value as string,
-      description: descriptionRef.current?.value as string,
-      date: parseDate(
-        dateRef.current?.value as string,
-        hourRef.current?.value as string
-      ),
-      email: emailRef.current?.value as string,
-      phone: phoneRef.current?.value as string,
+      title: titleRef.current.value,
+      description: descriptionRef.current.value,
+      date: parseDate(dateRef.current.value, hourRef.current.value),
+      email: emailRef.current.value,
+      phone: phoneRef.current.value,
       type: eventType,
-      onlineAddress: urlRef.current?.value as string,
+      onlineAddress:
+        eventType === EventTypeEnum.HYBRID || eventType === EventTypeEnum.ONLINE
+          ? urlRef.current.value
+          : '',
       physicalAddress: {
         address:
           eventType === EventTypeEnum.HYBRID ||
           eventType === EventTypeEnum.PRESENTIAL
-            ? (addressRef.current?.value.split(' - ')[0] as string)
+            ? addressRef.current.value.split(' - ')[0]
             : '',
         city:
           eventType === EventTypeEnum.HYBRID ||
           eventType === EventTypeEnum.PRESENTIAL
-            ? (address[address.length - 1] as string)
+            ? address[address.length - 1]
             : '',
         state:
           eventType === EventTypeEnum.HYBRID ||
           eventType === EventTypeEnum.PRESENTIAL
-            ? (address[address.length - 2] as string)
+            ? address[address.length - 2]
             : '',
       },
     }
@@ -146,7 +186,6 @@ const EventForm: React.FC = () => {
           <Input
             label="Título"
             placeholder="Digite o nome do evento"
-            mask=""
             maxLength={50}
             onKeyUp={e =>
               e.currentTarget.value.length < 5
@@ -159,7 +198,8 @@ const EventForm: React.FC = () => {
             <Input
               label="Data"
               placeholder="Informe a data"
-              mask="99/99/9999"
+              span={'"xx/xx/xxxx"'}
+              maxLength={10}
               inputMode="numeric"
               onKeyUp={e =>
                 !e.currentTarget.value ||
@@ -172,7 +212,8 @@ const EventForm: React.FC = () => {
             <Input
               label="Horário"
               placeholder="Informe o horário"
-              mask="99:99"
+              span={'"xx:xx"'}
+              maxLength={5}
               inputMode="numeric"
               onKeyUp={e =>
                 !e.currentTarget.value ||
@@ -193,15 +234,15 @@ const EventForm: React.FC = () => {
             type="email"
             inputMode="email"
             placeholder="Entre com um email para contato"
-            mask=""
             ref={emailRef}
           />
           <Input
             label="Telefone"
+            span={'"(xx) xxxx-xxxx"'}
+            maxLength={14}
             type="tel"
             inputMode="tel"
             placeholder="Entre com um telefone para contato"
-            mask="(99) 9999-9999"
             onKeyUp={e =>
               !e.currentTarget.value ||
               !/\(\d\d\) \d\d\d\d-\d\d\d\d/.test(e.currentTarget.value)
@@ -262,39 +303,43 @@ const EventForm: React.FC = () => {
           </div>
         </div>
 
-        {(eventType === EventTypeEnum.ONLINE ||
-          eventType === EventTypeEnum.HYBRID) && (
-          <Input
-            label="URL do evento"
-            span="(Informar http:// ou https://)"
-            placeholder="Informe o site que o evento ocorrerá"
-            mask=""
-            type="url"
-            inputMode="url"
-            ref={urlRef}
-          />
-        )}
+        <Input
+          shouldHide={
+            !(
+              eventType === EventTypeEnum.ONLINE ||
+              eventType === EventTypeEnum.HYBRID
+            )
+          }
+          label="URL do evento"
+          span="(Informar http:// ou https://)"
+          placeholder="Informe o site que o evento ocorrerá"
+          type="url"
+          inputMode="url"
+          ref={urlRef}
+        />
 
-        {(eventType === EventTypeEnum.PRESENTIAL ||
-          eventType === EventTypeEnum.HYBRID) && (
-          <Input
-            label="Endereço"
-            span={'(No formato "endereço - cidade - estado")'}
-            placeholder="Informe o local do evento"
-            mask=""
-            onKeyUp={e =>
-              !e.currentTarget.value ||
-              !/.+ - .+ - .+/.test(e.currentTarget.value)
-                ? e.currentTarget.setCustomValidity(
-                    'Insira um endereço comforme o padrão descrito'
-                  )
-                : e.currentTarget.setCustomValidity('')
-            }
-            ref={addressRef}
-          />
-        )}
+        <Input
+          shouldHide={
+            !(
+              eventType === EventTypeEnum.PRESENTIAL ||
+              eventType === EventTypeEnum.HYBRID
+            )
+          }
+          label="Endereço"
+          span={'(No formato "endereço - cidade - estado")'}
+          placeholder="Informe o local do evento"
+          onKeyUp={e =>
+            !e.currentTarget.value ||
+            !/.+ - .+ - .+/.test(e.currentTarget.value)
+              ? e.currentTarget.setCustomValidity(
+                  'Insira um endereço comforme o padrão descrito'
+                )
+              : e.currentTarget.setCustomValidity('')
+          }
+          ref={addressRef}
+        />
 
-        <button type="submit">Criar Evento</button>
+        <button type="submit">{buttonText}</button>
       </form>
     </div>
   )
