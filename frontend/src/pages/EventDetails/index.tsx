@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useParams } from 'react-router'
+import { useParams, useHistory } from 'react-router'
 import {
   Calendar,
   MapPin,
@@ -21,6 +21,7 @@ import { Link } from 'react-router-dom'
 
 const EventDetails: React.FC = () => {
   const { id } = useParams() as { id: string }
+  const history = useHistory()
 
   const [event, setEvent] = useState<IEvent>()
 
@@ -37,6 +38,24 @@ const EventDetails: React.FC = () => {
       setEvent(event)
     })()
   }, [id])
+
+  const handleRemoveEvent = async () => {
+    const response = window.confirm(
+      'Tem certeza que deseja excluir o evento?\nEssa ação não pode ser desfeita'
+    )
+
+    if (response) {
+      try {
+        await api.delete(`/events/${id}`)
+
+        alert('Evento excluido com sucesso')
+
+        history.push('/')
+      } catch (e) {
+        console.log(e)
+      }
+    }
+  }
 
   if (!event) {
     return (
@@ -70,7 +89,7 @@ const EventDetails: React.FC = () => {
             </button>
           </Link>
 
-          <button className="remove">
+          <button onClick={handleRemoveEvent} className="remove">
             <Trash2 />
           </button>
         </div>
