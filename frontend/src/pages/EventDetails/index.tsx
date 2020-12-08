@@ -32,12 +32,18 @@ const mapIcon = Leaflet.icon({
 
 const provider = new OpenStreetMapProvider()
 
+interface Address {
+  label: string
+  x: string
+  y: string
+}
+
 const EventDetails: React.FC = () => {
   const { id } = useParams() as { id: string }
   const history = useHistory()
 
   const [event, setEvent] = useState<IEvent>()
-  const [addr, setAddr] = useState<any>()
+  const [address, setAddress] = useState<Address>()
 
   useEffect(() => {
     ;(async () => {
@@ -51,17 +57,14 @@ const EventDetails: React.FC = () => {
 
       setEvent(event)
 
-      if (
-        event.type === EventTypeEnum.PRESENTIAL ||
-        event.type === EventTypeEnum.HYBRID
-      ) {
-        const results = await provider.search({
+      if (event.type !== EventTypeEnum.ONLINE) {
+        const results = (await provider.search({
           query: `${event.physicalAddress?.address} - ${event.physicalAddress?.city} - ${event.physicalAddress?.state}`,
-        })
+        })) as Address[]
 
-        setAddr(results[0])
-      } else {
-        setAddr(1)
+        console.log(results)
+
+        setAddress(results[0] as Address)
       }
     })()
   }, [id])
@@ -84,7 +87,7 @@ const EventDetails: React.FC = () => {
     }
   }
 
-  if (!event || !addr) {
+  if (!event || (!address && event.type !== EventTypeEnum.ONLINE)) {
     return (
       <div className="page event-details-page">
         <Header
@@ -156,15 +159,14 @@ const EventDetails: React.FC = () => {
             </small>
           </div>
 
-          {(event.type === EventTypeEnum.PRESENTIAL ||
-            event.type === EventTypeEnum.HYBRID) && (
+          {event.type !== EventTypeEnum.ONLINE && address && (
             <div className="contact local">
               <MapPin />
               <small>
                 <a
                   target="_blank"
                   rel="noopener noreferrer"
-                  href={`https://www.google.com/maps/dir/?api=1&destination=${addr.bounds[0][0]},${addr.bounds[0][1]}`}
+                  href={`https://www.google.com/maps/dir/?api=1&destination=${address.y},${address.x}`}
                 >
                   {event.physicalAddress?.address} -{' '}
                   {event.physicalAddress?.city} - {event.physicalAddress?.state}
@@ -173,8 +175,7 @@ const EventDetails: React.FC = () => {
             </div>
           )}
 
-          {(event.type === EventTypeEnum.ONLINE ||
-            event.type === EventTypeEnum.HYBRID) && (
+          {event.type !== EventTypeEnum.PRESENTIAL && (
             <div className="contact link">
               <Globe />
               <small>
@@ -184,11 +185,10 @@ const EventDetails: React.FC = () => {
           )}
         </address>
 
-        {(event.type === EventTypeEnum.PRESENTIAL ||
-          event.type === EventTypeEnum.HYBRID) && (
+        {event.type !== EventTypeEnum.ONLINE && address && (
           <div id="map">
             <MapContainer
-              center={addr.bounds[0]}
+              center={[Number(address.y), Number(address.x)]}
               zoom={16}
               style={{ width: '100%', height: '100%' }}
               dragging={false}
@@ -200,7 +200,10 @@ const EventDetails: React.FC = () => {
               <TileLayer
                 url={`https://api.mapbox.com/styles/v1/mapbox/light-v10/tiles/256/{z}/{x}/{y}@2x?access_token=${process.env.REACT_APP_MAPBOX_TOKEN}`}
               />
-              <Marker icon={mapIcon} position={addr.bounds[0]} />
+              <Marker
+                icon={mapIcon}
+                position={[Number(address.y), Number(address.x)]}
+              />
             </MapContainer>
           </div>
         )}
