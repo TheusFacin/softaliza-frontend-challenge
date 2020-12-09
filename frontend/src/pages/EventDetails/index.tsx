@@ -64,7 +64,11 @@ const EventDetails: React.FC = () => {
 
         console.log(results)
 
-        setAddress(results[0] as Address)
+        if (results[0]) {
+          setAddress(results[0] as Address)
+        } else {
+          setAddress({ label: '', x: '0', y: '0' })
+        }
       }
     })()
   }, [id])
