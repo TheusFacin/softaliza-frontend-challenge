@@ -183,7 +183,9 @@ const EventDetails: React.FC = () => {
             <div className="contact link">
               <Globe />
               <small>
-                <a href={event.onlineAddress || ''}>{event.onlineAddress}</a>
+                <a target="_blank" href={event.onlineAddress || ''}>
+                  {event.onlineAddress}
+                </a>
               </small>
             </div>
           )}
