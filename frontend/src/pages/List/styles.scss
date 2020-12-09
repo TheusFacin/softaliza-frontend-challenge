@@ -17,6 +17,14 @@
     border-radius: 20px;
     background-color: $container-back-color;
 
+    h2 {
+      line-break: anywhere;
+    }
+
+    p {
+      line-break: anywhere;
+    }
+
     footer {
       .details {
         margin-bottom: 20px;

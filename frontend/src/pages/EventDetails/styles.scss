@@ -13,6 +13,7 @@
   h2 {
     width: 60%;
     margin: 0 auto 20px;
+    line-break: anywhere;
   }
 
   button {
@@ -53,6 +54,10 @@
   }
 
   .description {
+    p {
+      line-break: anywhere;
+    }
+
     p:not(:first-child) {
       margin-top: 8px;
     }
