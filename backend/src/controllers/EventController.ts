@@ -42,8 +42,6 @@ class EventController {
       physicalAddress,
     } = req.body as ICreateRequest
 
-    console.log(physicalAddress)
-
     if (!title || !date || !description || !email || !phone || !type) {
       return res.status(400).json({
         err: 'Please, provide every information',
@@ -90,9 +88,13 @@ class EventController {
   async show(req: Request, res: Response) {
     const { id } = req.params
 
-    const event = await Event.findById(id)
+    try {
+      const event = await Event.findById(id)
 
-    return res.json(event)
+      return res.json(event)
+    } catch {
+      return res.status(404)
+    }
   }
 
   async update(req: Request, res: Response) {
