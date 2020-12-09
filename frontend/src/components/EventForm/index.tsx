@@ -1,17 +1,27 @@
 import React, { useEffect, useRef, useState } from 'react'
 
-import Input, { TextArea } from '../Input'
+import Input, { Select, TextArea } from '../Input'
 
 import { EventTypeEnum, ICreateEvent, IEvent } from '../../types'
 import parseDate from '../../utils/parseDate'
 import { getDate, getHour } from '../../utils/dateFormater'
 
 import './styles.scss'
+import api from '../../services/api'
 
 interface EventFormProps {
   event?: IEvent
   buttonText: string
   submitFunction: (data: ICreateEvent) => void
+}
+
+interface UF {
+  sigla: string
+  nome: string
+}
+
+interface IBGECityResponse {
+  nome: string
 }
 
 const EventForm: React.FC<EventFormProps> = ({
@@ -22,6 +32,9 @@ const EventForm: React.FC<EventFormProps> = ({
   const [eventType, setEventType] = useState<EventTypeEnum>(
     EventTypeEnum.ONLINE
   )
+  const [UFs, setUFs] = useState<UF[]>([])
+  const [cities, setCities] = useState<string[]>([])
+  const [selectedUf, setSelectedUf] = useState('0')
 
   const formRef = useRef<HTMLFormElement>(null)
   const titleRef = useRef<HTMLInputElement>(document.createElement('input'))
@@ -34,6 +47,8 @@ const EventForm: React.FC<EventFormProps> = ({
   )
   const urlRef = useRef<HTMLInputElement>(document.createElement('input'))
   const addressRef = useRef<HTMLInputElement>(document.createElement('input'))
+  const stateRef = useRef<HTMLSelectElement>(document.createElement('select'))
+  const cityRef = useRef<HTMLSelectElement>(document.createElement('select'))
 
   useEffect(() => {
     if (event) {
@@ -62,10 +77,58 @@ const EventForm: React.FC<EventFormProps> = ({
           state: string
         }
 
-        addressRef.current.value = `${addr.address} - ${addr.city} - ${addr.state}`
+        addressRef.current.value = addr.address
+        setSelectedUf(addr.state)
+
+        setTimeout(() => {
+          stateRef.current.value = addr.state
+          cityRef.current.value = addr.city
+        }, 200)
       }
     }
   }, [event])
+
+  // get UFs
+  useEffect(() => {
+    api
+      .get<UF[]>('https://servicodados.ibge.gov.br/api/v1/localidades/estados')
+      .then(response => {
+        const ufs = response.data
+          .map((uf: UF) => {
+            return {
+              sigla: uf.sigla,
+              nome: uf.nome,
+            }
+          })
+          .sort((a, b) => {
+            return a.nome.toUpperCase() > b.nome.toUpperCase()
+              ? 1
+              : a.nome.toUpperCase() < b.nome.toUpperCase()
+              ? -1
+              : 0
+          })
+
+        setUFs(ufs)
+      })
+  }, [])
+
+  // get Cities
+  useEffect(() => {
+    if (selectedUf === '0') {
+      setCities([])
+      return
+    }
+
+    api
+      .get<IBGECityResponse[]>(
+        `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${selectedUf}/municipios`
+      )
+      .then(response => {
+        const cityNames = response.data.map(city => city.nome).sort()
+
+        setCities(cityNames)
+      })
+  }, [selectedUf])
 
   const handleVerifyInputs = (): boolean => {
     let hasErrors = false
@@ -110,20 +173,29 @@ const EventForm: React.FC<EventFormProps> = ({
     }
 
     if (
-      (eventType === EventTypeEnum.HYBRID ||
-        eventType === EventTypeEnum.PRESENTIAL) &&
-      !addressRef.current.value
+      eventType === EventTypeEnum.HYBRID ||
+      eventType === EventTypeEnum.PRESENTIAL
     ) {
-      addressRef.current.setCustomValidity('Insira uma URL')
-      hasErrors = true
+      if (!addressRef.current.value) {
+        addressRef.current.setCustomValidity('Insira uma URL')
+        hasErrors = true
+      }
+
+      if (stateRef.current.value === '0') {
+        stateRef.current.setCustomValidity('Selecione um estado')
+        hasErrors = true
+      }
+
+      if (cityRef.current.value === '0') {
+        cityRef.current.setCustomValidity('Selecione uma cidade')
+        hasErrors = true
+      }
     }
 
     return hasErrors
   }
 
   const handleFormatData = (): ICreateEvent => {
-    let address = addressRef.current?.value.split(' - ') as string[]
-
     return {
       title: titleRef.current.value,
       description: descriptionRef.current.value,
@@ -139,17 +211,17 @@ const EventForm: React.FC<EventFormProps> = ({
         address:
           eventType === EventTypeEnum.HYBRID ||
           eventType === EventTypeEnum.PRESENTIAL
-            ? addressRef.current.value.split(' - ')[0]
+            ? addressRef.current.value
             : '',
         city:
           eventType === EventTypeEnum.HYBRID ||
           eventType === EventTypeEnum.PRESENTIAL
-            ? address[address.length - 1]
+            ? cityRef.current.value
             : '',
         state:
           eventType === EventTypeEnum.HYBRID ||
           eventType === EventTypeEnum.PRESENTIAL
-            ? address[address.length - 2]
+            ? stateRef.current.value
             : '',
       },
     }
@@ -220,6 +292,11 @@ const EventForm: React.FC<EventFormProps> = ({
             type="email"
             inputMode="email"
             placeholder="Entre com um email para contato"
+            onKeyUp={e =>
+              !e.currentTarget.value
+                ? e.currentTarget.setCustomValidity('Insira um telefone válido')
+                : e.currentTarget.setCustomValidity('')
+            }
             ref={emailRef}
           />
           <Input
@@ -304,26 +381,59 @@ const EventForm: React.FC<EventFormProps> = ({
           ref={urlRef}
         />
 
-        <Input
-          shouldHide={
-            !(
-              eventType === EventTypeEnum.PRESENTIAL ||
-              eventType === EventTypeEnum.HYBRID
-            )
-          }
-          label="Endereço"
-          span={'(No formato "endereço - cidade - estado")'}
-          placeholder="Informe o local do evento"
-          onKeyUp={e =>
-            !e.currentTarget.value ||
-            !/.+ - .+ - .+/.test(e.currentTarget.value)
-              ? e.currentTarget.setCustomValidity(
-                  'Insira um endereço comforme o padrão descrito'
+        <div className="row">
+          <Input
+            shouldHide={
+              !(
+                eventType === EventTypeEnum.PRESENTIAL ||
+                eventType === EventTypeEnum.HYBRID
+              )
+            }
+            label="Endereço"
+            placeholder="Informe o local do evento"
+            onKeyUp={e =>
+              !e.currentTarget.value
+                ? e.currentTarget.setCustomValidity('Insira um endereço')
+                : e.currentTarget.setCustomValidity('')
+            }
+            ref={addressRef}
+          />
+
+          <div className="row">
+            <Select
+              shouldHide={
+                !(
+                  eventType === EventTypeEnum.PRESENTIAL ||
+                  eventType === EventTypeEnum.HYBRID
                 )
-              : e.currentTarget.setCustomValidity('')
-          }
-          ref={addressRef}
-        />
+              }
+              ref={stateRef}
+              label="Estado"
+              placeholder="Selecione"
+              options={UFs.map(uf => ({ label: uf.nome, value: uf.sigla }))}
+              onChange={e => {
+                setSelectedUf(e.target.value)
+                e.target.setCustomValidity('')
+              }}
+            />
+
+            <Select
+              shouldHide={
+                !(
+                  eventType === EventTypeEnum.PRESENTIAL ||
+                  eventType === EventTypeEnum.HYBRID
+                )
+              }
+              ref={cityRef}
+              label="Cidade"
+              placeholder="Selecione"
+              options={cities.map(city => ({ label: city, value: city }))}
+              onChange={e => {
+                e.target.setCustomValidity('')
+              }}
+            />
+          </div>
+        </div>
 
         <button type="submit">{buttonText}</button>
       </form>
